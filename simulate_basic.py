@@ -1,5 +1,5 @@
 
-# My quest for pleasure: unraveling the secrets of stellar happiness and sex
+# My quest for pleasure: unraveling the secrets of heavenly joy
 # My hobbyist experiments in „computational quantitative psychology“
 # (c) Marco Lardelli
 # MIT License

@@ -1,4 +1,4 @@
-# My quest for pleasure: unraveling the secrets of stellar happiness and sex
+# My quest for pleasure: unraveling the secrets of heavenly joy
 # My hobbyist experiments in „computational quantitative psychology“
 # (c) Marco Lardelli
 # MIT License
@@ -83,7 +83,7 @@ df_results.plot.scatter('P1ProperRaw','P2ProperRaw',s='P1',color=cmap(norm(df_re
 
 """
 # now select the best
-selection = df_results[(df_results["P1"] > 20) | (df_results["L2"] > 20)]
+selection = df_results[(df_results["P1"] > 20) | (df_results["P2"] > 20)]
 norm_selection = matplotlib.colors.Normalize(selection['P2'].min(), selection['P2'].max())
 selection.plot.scatter('i1','i2',s='P1',color=cmap(norm_selection(selection['P2'].values)))
 
