@@ -14,6 +14,8 @@ import matplotlib.colors
 NO_OF_SIMULATIONS = 10000
 SIMULATION_STEPS = 1200  # if 1 step = 1 second -> 20minutes
 
+EPSILON_CONVERGENCE = 0.001
+
 # ------- end of configuration ------
 
 
@@ -27,6 +29,9 @@ def run_simulation(c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,STEPS):
     P2Social = 0
     P1Proper = math.tanh(P1ProperRaw)
     P2Proper = math.tanh(P2ProperRaw)
+
+    converged = SIMULATION_STEPS*10  # like this wee see those clearly which could not converge in SIMULATION_STEPS steps
+    P1_old = STEPS
     for i in range(STEPS):
         # Total pleasure is proper pleasure plus social pleasure felt according to compassion c
         # But we feel only a fraction c a of the partners pleasure
@@ -48,8 +53,13 @@ def run_simulation(c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,STEPS):
         # a simpler way to limit the values to -1,..,1
         #P1Proper = max(-1,min(1.0,P1ProperRaw))
         #P2Proper = max(-1,min(1.0,P2ProperRaw))
+        if abs(P1 - P1_old)<EPSILON_CONVERGENCE:
+            converged = i
+            break
+        else:
+            P1_old = P1
 
-    return P1,P2,P1Proper,P2Proper
+    return P1,P2,P1Proper,P2Proper,converged
 
         
 
@@ -81,9 +91,9 @@ for sim_no in range(NO_OF_SIMULATIONS):
     P1ProperRaw = random.uniform(0,1)
     P2ProperRaw = random.uniform(0,1)
 
-    P1,P2,P1Proper,P2Proper = run_simulation(c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,SIMULATION_STEPS)
+    P1,P2,P1Proper,P2Proper,converged = run_simulation(c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,SIMULATION_STEPS)
 
-    results.append([c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,P1,P2,P1Proper,P2Proper])
+    results.append([c1,c2,p1,p2,i1,i2,P1ProperRaw,P2ProperRaw,P1,P2,P1Proper,P2Proper,converged])
 
 
 
@@ -98,11 +108,16 @@ np_results = np.hstack((np_results,size_scaler(np_results[:, 9])))
 df_results = pd.DataFrame(np_results,
                    columns=['c1', 'c2', 'p1','p2','i1','i2',
                             'P1ProperRaw','P2ProperRaw',
-                            'P1','P2','P1Proper','P2Proper',
+                            'P1','P2','P1Proper','P2Proper','Converged',
                             'P1Norm','P2Norm'])
 
 #print summary statistics
+print('Mean:')
 print(df_results.mean())
+print('Min:')
+print(df_results.min())
+print('Max:')
+print(df_results.max())
 
 # export the dataframe as csv file for analysis with other tools
 df_results.to_csv('results.csv')
@@ -113,7 +128,7 @@ norm1 = matplotlib.colors.Normalize(df_results['P1'].min(), df_results['P1'].max
 norm2 = matplotlib.colors.Normalize(df_results['P2'].min(), df_results['P2'].max())
 
 
-df_results.plot.scatter('P1','P2',s=1,color="#000000")
+scatter_plot(df_results,'P1','P2',1,'Converged',"Size = 1, Color = #Steps")
 
 scatter_plot(df_results,'c1','c2','P1Norm','P1',"Size = |P1|, Color = P1")
 scatter_plot(df_results,'p1','p2','P1Norm','P1',"Size = |P1|, Color = P1")
